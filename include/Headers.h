@@ -21,6 +21,10 @@
 
 void configurar_pinos();
 
+void inicializar_serial();
+
+void mostrar_valores();
+
 // Fazer leitura nos sensores de linha
 void ler_sensores_de_linha();
 

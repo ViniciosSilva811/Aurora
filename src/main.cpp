@@ -15,12 +15,12 @@
 
 // ------------------------------------------------------------------------------------------ //
 
-#define pino_sensor_esquerda_extremo A0
-#define pino_sensor_esquerda_centro  A1
-#define pino_sensor_frente           A3
-#define pino_sensor_centro           A4
+#define pino_sensor_esquerda_extremo A13 
+#define pino_sensor_esquerda_centro  A11
+#define pino_sensor_frente           A9
+#define pino_sensor_centro           A7
 #define pino_sensor_direita_centro   A5
-#define pino_sensor_direita_extremo  A6
+#define pino_sensor_direita_extremo  A3
 
 int see;                             // Sensor esquerdo extremo
 int sec;                             // Sensor esquerdo central
@@ -40,13 +40,16 @@ Stubborn_DCMotor motor_esquerdo(2);
 
 void setup() {
   configurar_pinos();
+  inicializar_serial();
 }
 
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
   ler_sensores_de_linha();
-  seguir_linha();
+  mostrar_valores();
+  delay(500);
+  // seguir_linha();
 }
 
 // ---------------------------------------- FUNÇÕES ----------------------------------------- //
@@ -59,6 +62,11 @@ void configurar_pinos() {
   pinMode(pino_sensor_direita_centro, INPUT);
   pinMode(pino_sensor_direita_extremo, INPUT);
 }
+//
+
+void inicializar_serial() {
+  Serial.begin(115200);
+}
 
 // ------------------------------------------------------------------------------------------ //
 
@@ -69,6 +77,21 @@ void ler_sensores_de_linha() {
   sc  = analogRead(pino_sensor_centro);
   sdc = analogRead(pino_sensor_direita_centro);
   sde = analogRead(pino_sensor_direita_extremo);
+}
+
+void mostrar_valores() {
+  Serial.println(see);
+  Serial.print("  ");
+  Serial.print(sec); 
+  Serial.print("  ");
+  Serial.print(sf);
+  Serial.print("  ");
+  Serial.print(sc);
+  Serial.print("  ");
+  Serial.print(sdc);
+  Serial.print("  ");
+  Serial.print(sde);
+  Serial.println(" ");
 }
 
 // ------------------------------------------------------------------------------------------ //
