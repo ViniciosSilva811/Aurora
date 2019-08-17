@@ -21,6 +21,12 @@
 
 void configurar_pinos();
 
+void configurar_velocidade_inicial_dos_motores();
+
+void inicializar_serial();
+
+void mostrar_valores();
+
 // Fazer leitura nos sensores de linha
 void ler_sensores_de_linha();
 
@@ -41,6 +47,9 @@ void virar_para_esquerda();
 
 // Girar o robô 90° para a direção que for passada como parâmetro
 void girar_90_graus(int direcao);
+
+// Parar o robô
+void parar();
 
 void mover_somente_motor_direito();
 void mover_somente_motor_esquerdo();
