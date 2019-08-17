@@ -105,64 +105,65 @@ void mostrar_valores() {
 
 // ------------------------------------------------------------------------------------------ //
 
-/*
-Quando o robô for fazer curva simples só que com o preto na frente, ele curva como se fosse em 90°
-
-*/
-
-
 void seguir_linha() {
   if (sf > limite) {
     if (see > limite and sde > limite and sc > limite and sec > limite and sdc > limite) {
       // CRUZAMENTO TOTAL
       andar_para_frente();
+      delay(200);
     }
 
     else if (see > limite and sde <= limite and sc > limite and sec > limite) {
       // CRUZAMENTO COM PPRETO NA ESQUERDA
       andar_para_frente();
+      delay(200);
     }
 
     else if (sde > limite and see <= limite and sc > limite and sdc > limite) {
       // CRUZAMENTO COM PRETO NA DIREITA
       andar_para_frente();
+      delay(200);
     }
 
-    else if (sec > limite and sdc <= limite) {
+    else if (sec > limite and see <= limite and sdc <= limite and sc > limite) {
       // CURVA SIMPLES PARA A ESQUERDA
       virar_para_esquerda();
+      delay(100);
     }
 
-    else if (sdc > limite and sec <= limite) {
+    else if (sdc > limite and sde <= limite and sec <= limite and sc > limite) {
       // CURVA SIMPLES PARA A DIREITA
       virar_para_direita();
+      delay(100);
     }
 
     else if (sdc <= limite and sec <= limite and sc > limite and see <= limite and sde <= limite) {
       // LINHA RETA
       andar_para_frente();
-      delay(50);
+      delay(100);
     }
   }
   else {
-    if (see > limite and sde <= limite and sc > limite and sec > limite and sdc <= limite) {
+    if (see > limite and sde <= limite and sc > limite and sec > limite) {
       // CURVA DE 90° PARA A ESQUERDA
       girar_90_graus(PARA_A_ESQUERDA);
     }
 
-    else if (sde > limite and see <= limite and sc > limite and sdc > limite and sec <= limite) {
+    else if (sde > limite and see <= limite and sc > limite and sdc > limite) {
       // CURVA DE 90° PARA A DIREITA
       girar_90_graus(PARA_A_DIREITA);
     }
-
-    else if (sec > limite and sdc <= limite and sc > limite) {
+    
+    else if (sec > limite and see <= limite and sdc <= limite and sc > limite) {
       // CURVA SIMPLES PARA A ESQUERDA
       virar_para_esquerda();
+      delay(100);
     }
 
-    else if (sdc > limite and sec <= limite and sc > limite) {
+    else if (sdc > limite and sde <= limite and sec <= limite and sc > limite) {
       // CURVA SIMPLES PARA A DIREITA
       virar_para_direita();
+      delay(100);
     }
 
     else {
@@ -204,7 +205,7 @@ void virar_para_esquerda() {
 
 void girar_90_graus(int direcao) {
   andar_para_frente();
-  delay(600);
+  delay(500);
   
   switch (direcao){
     case PARA_A_DIREITA:
@@ -222,7 +223,21 @@ void girar_90_graus(int direcao) {
   } while (sf <= 600);
 
   andar_para_frente();
-  delay(500);
+  delay(100);
+
+  switch (direcao){
+    case PARA_A_DIREITA:
+      virar_para_direita();
+      delay(100);
+      break;
+    case PARA_A_ESQUERDA:
+      virar_para_esquerda();
+      delay(100);
+      break;
+  }
+
+  andar_para_frente();
+  delay(100);
 }
 
 // ------------------------------------------------------------------------------------------ //
