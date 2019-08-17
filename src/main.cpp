@@ -15,12 +15,12 @@
 
 // ------------------------------------------------------------------------------------------ //
 
-#define pino_sensor_esquerda_extremo A13 
-#define pino_sensor_esquerda_centro  A11
-#define pino_sensor_frente           A9
-#define pino_sensor_centro           A7
-#define pino_sensor_direita_centro   A5
-#define pino_sensor_direita_extremo  A3
+#define pino_sensor_esquerda_extremo A3 
+#define pino_sensor_esquerda_centro  A5
+#define pino_sensor_frente           A7
+#define pino_sensor_centro           A9
+#define pino_sensor_direita_centro   A11
+#define pino_sensor_direita_extremo  A13
 
 int see;                             // Sensor esquerdo extremo
 int sec;                             // Sensor esquerdo central
@@ -29,7 +29,7 @@ int sc;                              // Sensor central
 int sdc;                             // Sensor direito central
 int sde;                             // Sensor direito extremo
 
-int limite = 400;                    // Valor intermediário entre preto e branco
+int limite = 200;                    // Valor intermediário entre preto e branco
 
 // ---------------------------------- OBJETOS DAS BIBIOTECAS -------------------------------- //
 
@@ -40,16 +40,16 @@ Stubborn_DCMotor motor_esquerdo(2);
 
 void setup() {
   configurar_pinos();
-  inicializar_serial();
+  configurar_velocidade_inicial_dos_motores();
+  // inicializar_serial();
 }
 
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
   ler_sensores_de_linha();
-  mostrar_valores();
-  delay(500);
-  // seguir_linha();
+  // mostrar_valores();
+  seguir_linha();
 }
 
 // ---------------------------------------- FUNÇÕES ----------------------------------------- //
@@ -62,7 +62,15 @@ void configurar_pinos() {
   pinMode(pino_sensor_direita_centro, INPUT);
   pinMode(pino_sensor_direita_extremo, INPUT);
 }
-//
+
+// ------------------------------------------------------------------------------------------ //
+
+void configurar_velocidade_inicial_dos_motores() {
+  motor_direito.setSpeed(255);
+  motor_esquerdo .setSpeed(255);
+}
+
+// ------------------------------------------------------------------------------------------ //
 
 void inicializar_serial() {
   Serial.begin(115200);
@@ -79,8 +87,10 @@ void ler_sensores_de_linha() {
   sde = analogRead(pino_sensor_direita_extremo);
 }
 
+// ------------------------------------------------------------------------------------------ //
+
 void mostrar_valores() {
-  Serial.println(see);
+  Serial.print(see);
   Serial.print("  ");
   Serial.print(sec); 
   Serial.print("  ");
@@ -90,70 +100,74 @@ void mostrar_valores() {
   Serial.print("  ");
   Serial.print(sdc);
   Serial.print("  ");
-  Serial.print(sde);
-  Serial.println(" ");
+  Serial.println(sde);
 }
 
 // ------------------------------------------------------------------------------------------ //
 
+/*
+Quando o robô for fazer curva simples só que com o preto na frente, ele curva como se fosse em 90°
+
+*/
+
+
 void seguir_linha() {
   if (sf > limite) {
     if (see > limite and sde > limite and sc > limite and sec > limite and sdc > limite) {
-      // Cruzamento
-      // Adicionar verificar cor!
+      // CRUZAMENTO TOTAL
       andar_para_frente();
     }
-    else if(see > limite ) {
-      if(sec > limite and sc > limite and sdc <= limite and sde <= limite) {
-        // Cruzamento
-        // Adicionar verificar cor!
-        andar_para_frente();
-      }
-      else if(sec <= limite and sc > limite and sdc <= limite and sde <= limite) {
-        // Curva simples para a esquerda
-        virar_para_esquerda();
-      }
-    }
-    else if(sde > limite ) {
-      if(sdc > limite and sc > limite and sec <= limite and see <= limite) {
-        // Cruzamento
-        // Adicionar verificar cor!
-        andar_para_frente();
-      }
-      else if(sdc <= limite and sc > limite and sec <= limite and see <= limite) {
-        // Curva simples para a direita
-        virar_para_direita();
-      }
-    }
-    else if(see <= limite and sde <= limite and sc > limite and sec <= limite and sdc <= limite) {
-      // Linha reta
+
+    else if (see > limite and sde <= limite and sc > limite and sec > limite) {
+      // CRUZAMENTO COM PPRETO NA ESQUERDA
       andar_para_frente();
+    }
+
+    else if (sde > limite and see <= limite and sc > limite and sdc > limite) {
+      // CRUZAMENTO COM PRETO NA DIREITA
+      andar_para_frente();
+    }
+
+    else if (sec > limite and sdc <= limite) {
+      // CURVA SIMPLES PARA A ESQUERDA
+      virar_para_esquerda();
+    }
+
+    else if (sdc > limite and sec <= limite) {
+      // CURVA SIMPLES PARA A DIREITA
+      virar_para_direita();
+    }
+
+    else if (sdc <= limite and sec <= limite and sc > limite and see <= limite and sde <= limite) {
+      // LINHA RETA
+      andar_para_frente();
+      delay(50);
     }
   }
   else {
-    if (see > limite and sde > limite and sc > limite and sec > limite and sdc > limite) {
-      // T
-      // Adicionar verificar cor!
+    if (see > limite and sde <= limite and sc > limite and sec > limite and sdc <= limite) {
+      // CURVA DE 90° PARA A ESQUERDA
+      girar_90_graus(PARA_A_ESQUERDA);
     }
-    else if(see > limite) {
-      if(sde <= limite and sc > limite and sec > limite and sdc <= limite) {
-        // Curva de 90° para a esquerda
-        girar_90_graus(PARA_A_ESQUERDA);
-      }
-      else if(sec <= limite and sc > limite and sdc <= limite and sde <= limite) {
-        // Curva simples para a esquerda
-        virar_para_esquerda();
-      }
+
+    else if (sde > limite and see <= limite and sc > limite and sdc > limite and sec <= limite) {
+      // CURVA DE 90° PARA A DIREITA
+      girar_90_graus(PARA_A_DIREITA);
     }
-    else if (sde > limite) {
-      if(see <= limite and sc > limite and sdc > limite and sec <= limite) {
-        // Curva de 90° para a direita
-        girar_90_graus(PARA_A_DIREITA);
-      }
-      else if(sdc <= limite and sc > limite and sec <= limite and see <= limite) {
-        // Curva simples para a direita
-        virar_para_direita();
-      }
+
+    else if (sec > limite and sdc <= limite and sc > limite) {
+      // CURVA SIMPLES PARA A ESQUERDA
+      virar_para_esquerda();
+    }
+
+    else if (sdc > limite and sec <= limite and sc > limite) {
+      // CURVA SIMPLES PARA A DIREITA
+      virar_para_direita();
+    }
+
+    else {
+      andar_para_frente();
+      delay(100);
     }
   }
 }
@@ -175,37 +189,47 @@ void andar_para_tras() {
 // ------------------------------------------------------------------------------------------ //
 
 void virar_para_direita() {
-  motor_direito.run(BACKWARD);
-  motor_esquerdo.run(FORWARD);
-}
-
-// ------------------------------------------------------------------------------------------ //
-
-void virar_para_esquerda() {
   motor_direito.run(FORWARD);
   motor_esquerdo.run(BACKWARD);
 }
 
 // ------------------------------------------------------------------------------------------ //
 
+void virar_para_esquerda() {
+  motor_direito.run(BACKWARD);
+  motor_esquerdo.run(FORWARD);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
 void girar_90_graus(int direcao) {
+  andar_para_frente();
+  delay(600);
+  
   switch (direcao){
     case PARA_A_DIREITA:
       virar_para_direita();
-      delay(500);
+      delay(1000);
       break;
     case PARA_A_ESQUERDA:
       virar_para_esquerda();
-      delay(500);
+      delay(1000);
       break;
   }
 
   do {
     sf = analogRead(pino_sensor_frente);
-  } while (sf <= limite);
+  } while (sf <= 600);
 
   andar_para_frente();
-  delay(1000);
+  delay(500);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void parar() {
+  motor_direito.run(RELEASE);
+  motor_esquerdo.run(RELEASE);
 }
 
 // ------------------------------------------------------------------------------------------ //
