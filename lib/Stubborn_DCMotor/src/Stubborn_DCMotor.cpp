@@ -16,14 +16,13 @@
 
 // ------------------------------------------------------------------------------------- //
 
-#define MOTOR1_A 9
-#define MOTOR1_B 8
+#define PINO_VELOCIDADE_MOTOR_1 2
+#define MOTOR1_A 3
+#define MOTOR1_B 4
 
-#define MOTOR2_A 7
+#define MOTOR2_A 5
 #define MOTOR2_B 6
-
-#define PINO_VELOCIDADE_MOTOR_1 10
-#define PINO_VELOCIDADE_MOTOR_2 5
+#define PINO_VELOCIDADE_MOTOR_2 7
 
 // --------------------------------- MÉTODO CONSTRUTOR --------------------------------- //
 
