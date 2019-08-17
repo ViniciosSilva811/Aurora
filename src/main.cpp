@@ -166,6 +166,13 @@ void seguir_linha() {
       delay(100);
     }
 
+    else if (see > limite and sc <= limite and sf <= limite and sde <= limite) {
+      retornar_para_a_linha(PELA_ESQUERDA);
+    }
+
+    else if (sde > limite and sc <= limite and sf <= limite and see <= limite) {
+      retornar_para_a_linha(PELA_DIREITA);
+    }
     else {
       andar_para_frente();
       delay(100);
@@ -203,7 +210,7 @@ void virar_para_esquerda() {
 
 // ------------------------------------------------------------------------------------------ //
 
-void girar_90_graus(int direcao) {
+void girar_90_graus(byte direcao) {
   andar_para_frente();
   delay(500);
   
@@ -225,19 +232,48 @@ void girar_90_graus(int direcao) {
   andar_para_frente();
   delay(100);
 
-  switch (direcao){
-    case PARA_A_DIREITA:
-      virar_para_direita();
-      delay(100);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void retornar_para_a_linha(byte lado) {
+  switch (lado) {
+    case PELA_ESQUERDA:
+      do {
+        virar_para_esquerda();
+        sf = analogRead(pino_sensor_frente);
+      } while (sf <= 400);
+
+      do {
+        andar_para_frente();
+        sc = analogRead(pino_sensor_centro);
+      } while (sc <= 400);
+
+      do {
+        virar_para_direita();
+        sf = analogRead(pino_sensor_frente);
+      } while (sf <= 400);
+      
       break;
-    case PARA_A_ESQUERDA:
-      virar_para_esquerda();
-      delay(100);
+
+    case PELA_DIREITA:
+      do {
+        virar_para_direita();
+        sf = analogRead(pino_sensor_frente);
+      } while (sf <= 400);
+
+      do {
+        andar_para_frente();
+        sc = analogRead(pino_sensor_centro);
+      } while (sc <= 400);
+
+      do {
+        virar_para_esquerda();
+        sf = analogRead(pino_sensor_frente);
+      } while (sf <= 400);
+
       break;
   }
-
-  andar_para_frente();
-  delay(100);
 }
 
 // ------------------------------------------------------------------------------------------ //

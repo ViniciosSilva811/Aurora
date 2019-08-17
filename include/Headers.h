@@ -17,6 +17,9 @@
 #define PARA_A_ESQUERDA 1
 #define PARA_A_DIREITA  2
 
+#define PELA_ESQUERDA   1
+#define PELA_DIREITA    2
+
 // ------------------------------------------------------------------------------------------ //
 
 void configurar_pinos();
@@ -46,7 +49,10 @@ void virar_para_direita();
 void virar_para_esquerda();
 
 // Girar o robô 90° para a direção que for passada como parâmetro
-void girar_90_graus(int direcao);
+void girar_90_graus(byte direcao);
+
+// Função de emergência para caso o robô se perca da linha
+void retornar_para_a_linha(byte lado); 
 
 // Parar o robô
 void parar();
