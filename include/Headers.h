@@ -22,16 +22,23 @@
 
 // ------------------------------------------------------------------------------------------ //
 
+// Define o modo de eperação de todos os pinos
 void configurar_pinos();
 
+// Configura a velocidade inicial dos motores
 void configurar_velocidade_inicial_dos_motores();
 
-void inicializar_serial();
+// Inicia a comunicação com o Monitor Serial
+void inicializar_monitor_serial();
 
+// Mostrar os valores obtidos dos sensores
 void mostrar_valores();
 
 // Fazer leitura nos sensores de linha
 void ler_sensores_de_linha();
+
+// Fazer leitura nos sensores de cor
+void ler_sensores_de_cor();
 
 // Seguir linha
 void seguir_linha();
