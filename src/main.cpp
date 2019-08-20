@@ -13,6 +13,7 @@
 #include <Headers.h>
 #include "Stubborn_DCMotor.h"
 #include "Adafruit_TCS34725softi2c.h"
+#include "Ultrasonic.h"
 
 // ------------------------------ VARIÁVEIS E CONSTANTES GLOBAIS ---------------------------- //
 
@@ -23,19 +24,19 @@
 #define pino_sensor_direita_centro   A11
 #define pino_sensor_direita_extremo  A13
 
-int see;                             // Sensor esquerdo extremo
-int sec;                             // Sensor esquerdo central
-int sf;                              // Sensor frontal
-int sc;                              // Sensor central
-int sdc;                             // Sensor direito central
-int sde;                             // Sensor direito extremo
+#define SDAD 36                                     // Pino SDA do sensor de cor direito
+#define SCLD 38                                     // Pino SCL do sensor de cor direito
+#define SDAE 40                                     // Pino SDA do sensor do cor esquerdo
+#define SCLE 42                                     // Pino SCL do sensor de cor esquerdo
 
-int limite = 200;                    // Valor intermediário entre preto e branco
+int see;                                            // Sensor esquerdo extremo
+int sec;                                            // Sensor esquerdo central
+int sf;                                             // Sensor frontal
+int sc;                                             // Sensor central
+int sdc;                                            // Sensor direito central
+int sde;                                            // Sensor direito extremo
 
-#define SDAD 38                      // SDA para o sensor direito
-#define SCLD 36                      // SDL para o sensor direito
-#define SDAE 42                      // SDA para o sensor esquerdo
-#define SCLE 40                      // SDA para o sensor esquerdo
+int limite = 200;                                   // Valor intermediário entre preto e branco
 
 uint16_t RE, GE, BE, CE, RD, GD, BD, CD;
 
@@ -77,7 +78,7 @@ void configurar_pinos() {
 
 void configurar_velocidade_inicial_dos_motores() {
   motor_direito.setSpeed(255);
-  motor_esquerdo .setSpeed(255);
+  motor_esquerdo.setSpeed(255);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -107,6 +108,8 @@ void ler_sensores_de_cor() {
 // ------------------------------------------------------------------------------------------ //
 
 void mostrar_valores() {
+  // Serial.print("          ");
+
   // Serial.print(see);
   // Serial.print("  ");
   // Serial.print(sec); 
@@ -118,18 +121,22 @@ void mostrar_valores() {
   // Serial.print(sdc);
   // Serial.print("  ");
   // Serial.println(sde);
-  Serial.print("          ");
+
   Serial.print(RE);
   Serial.print(" ");
   Serial.print(GE);
   Serial.print(" ");
   Serial.print(BE);
+  Serial.print("  ");
+  Serial.print(CE);
   Serial.print("    ");
   Serial.print(RD);
   Serial.print(" ");
   Serial.print(GD);
   Serial.print(" ");
-  Serial.println(BD);
+  Serial.print(BD);
+  Serial.print("  ");
+  Serial.println(CD);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -138,20 +145,23 @@ void seguir_linha() {
   if (sf > limite) {
     if (see > limite and sde > limite and sc > limite and sec > limite and sdc > limite) {
       // CRUZAMENTO TOTAL
+      // COR
       andar_para_frente();
-      delay(200);
+      delay(100);
     }
 
     else if (see > limite and sde <= limite and sc > limite and sec > limite) {
       // CRUZAMENTO COM PPRETO NA ESQUERDA
+      // COR
       andar_para_frente();
-      delay(200);
+      delay(100);
     }
 
     else if (sde > limite and see <= limite and sc > limite and sdc > limite) {
       // CRUZAMENTO COM PRETO NA DIREITA
+      // COR
       andar_para_frente();
-      delay(200);
+      delay(100);
     }
 
     else if (sec > limite and see <= limite and sdc <= limite and sc > limite) {
@@ -175,21 +185,23 @@ void seguir_linha() {
   else {
     if (see > limite and sde <= limite and sc > limite and sec > limite) {
       // CURVA DE 90° PARA A ESQUERDA
+      // COR
       girar_90_graus(PARA_A_ESQUERDA);
     }
 
     else if (sde > limite and see <= limite and sc > limite and sdc > limite) {
       // CURVA DE 90° PARA A DIREITA
+      // COR
       girar_90_graus(PARA_A_DIREITA);
     }
     
-    else if (sec > limite and see <= limite and sdc <= limite and sc > limite) {
+    else if (sec > limite and see <= limite and sdc <= limite and sc <= limite) {
       // CURVA SIMPLES PARA A ESQUERDA
       virar_para_esquerda();
       delay(100);
     }
 
-    else if (sdc > limite and sde <= limite and sec <= limite and sc > limite) {
+    else if (sdc > limite and sde <= limite and sec <= limite and sc <= limite) {
       // CURVA SIMPLES PARA A DIREITA
       virar_para_direita();
       delay(100);
@@ -227,15 +239,15 @@ void andar_para_tras() {
 // ------------------------------------------------------------------------------------------ //
 
 void virar_para_direita() {
-  motor_direito.run(FORWARD);
-  motor_esquerdo.run(BACKWARD);
+  motor_direito.run(BACKWARD);
+  motor_esquerdo.run(FORWARD);
 }
 
 // ------------------------------------------------------------------------------------------ //
 
 void virar_para_esquerda() {
-  motor_direito.run(BACKWARD);
-  motor_esquerdo.run(FORWARD);
+  motor_direito.run(FORWARD);
+  motor_esquerdo.run(BACKWARD);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -262,16 +274,16 @@ void girar_90_graus(byte direcao) {
   switch (direcao){
     case PARA_A_DIREITA:
       virar_para_direita();
-      delay(100);
+      delay(400);
       break;
     case PARA_A_ESQUERDA:
       virar_para_esquerda();
-      delay(100);
+      delay(400);
       break;
   }
 
   andar_para_frente();
-  delay(100);
+  delay(200);
 
 }
 
