@@ -38,6 +38,8 @@ int sde;                                            // Sensor direito extremo
 
 int limite = 200;                                   // Valor intermediário entre preto e branco
 
+unsigned long tempo_desde_a_ultima_leitura_de_cor = 0;
+
 uint16_t RE, GE, BE, CE, RD, GD, BD, CD;
 
 // ---------------------------------- OBJETOS DAS BIBIOTECAS -------------------------------- //
@@ -45,13 +47,14 @@ uint16_t RE, GE, BE, CE, RD, GD, BD, CD;
 Stubborn_DCMotor motor_direito (1);
 Stubborn_DCMotor motor_esquerdo(2);
 
-Adafruit_TCS34725softi2c sensor_direita  = Adafruit_TCS34725softi2c(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X, SDAD, SCLD);
-Adafruit_TCS34725softi2c sensor_esquerda = Adafruit_TCS34725softi2c(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X, SDAE, SCLE);
+Adafruit_TCS34725softi2c sensor_direito  = Adafruit_TCS34725softi2c(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X, SDAD, SCLD);
+Adafruit_TCS34725softi2c sensor_esquerdo = Adafruit_TCS34725softi2c(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X, SDAE, SCLE);
 
 // ----------------------------------------- SETUP ------------------------------------------ //
 
 void setup() {
   configurar_pinos();
+  inicializar_sensores_de_cor();
   configurar_velocidade_inicial_dos_motores();
   inicializar_monitor_serial();
 }
@@ -59,8 +62,7 @@ void setup() {
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
-  ler_sensores_de_cor();
-  mostrar_valores();
+
 }
 
 // ---------------------------------------- FUNÇÕES ----------------------------------------- //
@@ -87,9 +89,16 @@ void inicializar_monitor_serial() {
   Serial.begin(115200);
 }
 
-// -----------------------------------------s------------------------------------------------- //
+// ------------------------------------------------------------------------------------------ //
 
-void ler_sensores_de_linha() {
+void inicializar_sensores_de_cor() {
+  sensor_direito.begin();
+  sensor_esquerdo.begin();
+}
+
+// ------------------------------------------------------------------------------------------- //
+
+void fazer_leitura_nos_sensores_de_linha() {
   see = analogRead(pino_sensor_esquerda_extremo);
   sec = analogRead(pino_sensor_esquerda_centro);
   sf  = analogRead(pino_sensor_frente);
@@ -100,43 +109,38 @@ void ler_sensores_de_linha() {
 
 // ------------------------------------------------------------------------------------------ //
 
-void ler_sensores_de_cor() {
-  sensor_direita. getRawData(&RD, &GD, &BD, &CD);
-  sensor_esquerda.getRawData(&RE, &GE, &BE, &CE);
+void fazer_leitura_nos_sensores_de_cor() {
+  sensor_direito. getRawData(&RD, &GD, &BD, &CD);
+  sensor_esquerdo.getRawData(&RE, &GE, &BE, &CE);
 }
 
 // ------------------------------------------------------------------------------------------ //
 
-void mostrar_valores() {
-  // Serial.print("          ");
+void verificar_se_existem_adesivos_verdes_e_executar_rotina_correspondente() {
 
-  // Serial.print(see);
-  // Serial.print("  ");
-  // Serial.print(sec); 
-  // Serial.print("  ");
-  // Serial.print(sf);
-  // Serial.print("  ");
-  // Serial.print(sc);
-  // Serial.print("  ");
-  // Serial.print(sdc);
-  // Serial.print("  ");
-  // Serial.println(sde);
+  fazer_leitura_nos_sensores_de_cor();
 
-  Serial.print(RE);
-  Serial.print(" ");
-  Serial.print(GE);
-  Serial.print(" ");
-  Serial.print(BE);
-  Serial.print("  ");
-  Serial.print(CE);
-  Serial.print("    ");
-  Serial.print(RD);
-  Serial.print(" ");
-  Serial.print(GD);
-  Serial.print(" ");
-  Serial.print(BD);
-  Serial.print("  ");
-  Serial.println(CD);
+  if (CE < 10000 and CD < 10000) {
+    // ADESIVOS_VERDES_EM_AMBOS_OS_LADOS
+    meia_volta();
+  }
+
+  else if (CE < 10000 and CD > 10000) {
+    // ADESIVO_VERDE_NA_ESQUERDA
+    girar_90_graus(PARA_A_ESQUERDA);
+  }
+
+  else if (CE > 10000 and CD < 10000) {
+    // ADESIVO_VERDE_NA_DIREITA
+    girar_90_graus(PARA_A_DIREITA);
+  }
+
+  else {
+    // NENHUM_ADESIVO_VERDE_ENCONTRADO
+    andar_para_frente();
+    delay(300);
+  }
+
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -147,39 +151,39 @@ void seguir_linha() {
       // CRUZAMENTO TOTAL
       // COR
       andar_para_frente();
-      delay(100);
+      //delay(100);
     }
 
     else if (see > limite and sde <= limite and sc > limite and sec > limite) {
       // CRUZAMENTO COM PPRETO NA ESQUERDA
       // COR
       andar_para_frente();
-      delay(100);
+      // delay(100);
     }
 
     else if (sde > limite and see <= limite and sc > limite and sdc > limite) {
       // CRUZAMENTO COM PRETO NA DIREITA
       // COR
       andar_para_frente();
-      delay(100);
+      // delay(100);
     }
 
     else if (sec > limite and see <= limite and sdc <= limite and sc > limite) {
       // CURVA SIMPLES PARA A ESQUERDA
       virar_para_esquerda();
-      delay(100);
+      // delay(100);
     }
 
     else if (sdc > limite and sde <= limite and sec <= limite and sc > limite) {
       // CURVA SIMPLES PARA A DIREITA
       virar_para_direita();
-      delay(100);
+      // delay(100);
     }
 
     else if (sdc <= limite and sec <= limite and sc > limite and see <= limite and sde <= limite) {
       // LINHA RETA
       andar_para_frente();
-      delay(100);
+      // delay(100);
     }
   }
   else {
@@ -198,13 +202,13 @@ void seguir_linha() {
     else if (sec > limite and see <= limite and sdc <= limite and sc <= limite) {
       // CURVA SIMPLES PARA A ESQUERDA
       virar_para_esquerda();
-      delay(100);
+      // delay(100);
     }
 
     else if (sdc > limite and sde <= limite and sec <= limite and sc <= limite) {
       // CURVA SIMPLES PARA A DIREITA
       virar_para_direita();
-      delay(100);
+      // delay(100);
     }
 
     else if (see > limite and sc <= limite and sf <= limite and sde <= limite) {
@@ -217,8 +221,46 @@ void seguir_linha() {
     
     else {
       andar_para_frente();
-      delay(100);
+      // delay(100);
     }
+  }
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void mostrar_valores(char opcao) {
+  Serial.print("          ");
+
+  if (opcao == 'L') {
+    Serial.print(see);
+    Serial.print(F("  "));
+    Serial.print(sec); 
+    Serial.print(F("  "));
+    Serial.print(sf);
+    Serial.print(F("  "));
+    Serial.print(sc);
+    Serial.print(F("  "));
+    Serial.print(sdc);
+    Serial.print(F("  "));
+    Serial.println(sde);
+  }
+  
+  if (opcao == 'C') {
+    Serial.print(RE);
+    Serial.print(F(" "));
+    Serial.print(GE);
+    Serial.print(F(" "));
+    Serial.print(BE);
+    Serial.print(F("  "));
+    Serial.print(CE);
+    Serial.print("    ");
+    Serial.print(RD);
+    Serial.print(F(" "));
+    Serial.print(GD);
+    Serial.print(F(" "));
+    Serial.print(BD);
+    Serial.print(F("  "));
+    Serial.println(CD);
   }
 }
 
@@ -274,17 +316,34 @@ void girar_90_graus(byte direcao) {
   switch (direcao){
     case PARA_A_DIREITA:
       virar_para_direita();
-      delay(400);
+      delay(200);
       break;
     case PARA_A_ESQUERDA:
       virar_para_esquerda();
-      delay(400);
+      delay(200);
       break;
   }
 
   andar_para_frente();
   delay(200);
 
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void meia_volta() {
+  andar_para_tras();
+  delay(700);
+
+  virar_para_esquerda();
+  delay(1300);
+
+  do {
+    sf = analogRead(pino_sensor_frente);
+  } while (sf <= 600);
+
+  andar_para_frente();
+  delay(400);
 }
 
 // ------------------------------------------------------------------------------------------ //

@@ -31,14 +31,20 @@ void configurar_velocidade_inicial_dos_motores();
 // Inicia a comunicação com o Monitor Serial
 void inicializar_monitor_serial();
 
+// Inicia os sensores de cor
+void inicializar_sensores_de_cor();
+
 // Mostrar os valores obtidos dos sensores
-void mostrar_valores();
+void mostrar_valores(char opcao);
 
 // Fazer leitura nos sensores de linha
-void ler_sensores_de_linha();
+void fazer_leitura_nos_sensores_de_linha();
 
 // Fazer leitura nos sensores de cor
-void ler_sensores_de_cor();
+void fazer_leitura_nos_sensores_de_cor();
+
+// Verifica onde está os edesivos verdes e executa a rotina correspondente ao caso 
+void verificar_se_existem_adesivos_verdes_e_executar_rotina_correspondente();
 
 // Seguir linha
 void seguir_linha();
@@ -57,6 +63,9 @@ void virar_para_esquerda();
 
 // Girar o robô 90° para a direção que for passada como parâmetro
 void girar_90_graus(byte direcao);
+
+// Girar o robô 180° em torno do seu próprio eixo
+void meia_volta();
 
 // Função de emergência para caso o robô se perca da linha
 void retornar_para_a_linha(byte lado); 
