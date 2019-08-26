@@ -13,7 +13,6 @@
 #include <Headers.h>
 #include "Stubborn_DCMotor.h"
 #include "Adafruit_TCS34725softi2c.h"
-#include "Ultrasonic.h"
 
 // ------------------------------ VARIÁVEIS E CONSTANTES GLOBAIS ---------------------------- //
 
@@ -54,7 +53,7 @@ Adafruit_TCS34725softi2c sensor_esquerdo = Adafruit_TCS34725softi2c(TCS34725_INT
 
 void setup() {
   configurar_pinos();
-  inicializar_sensores_de_cor();
+  // inicializar_sensores_de_cor();
   configurar_velocidade_inicial_dos_motores();
   inicializar_monitor_serial();
 }
@@ -62,7 +61,9 @@ void setup() {
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
-
+  fazer_leitura_nos_sensores_de_linha();
+  mostrar_valores('L');
+  // seguir_linha();
 }
 
 // ---------------------------------------- FUNÇÕES ----------------------------------------- //
@@ -78,22 +79,22 @@ void configurar_pinos() {
 
 // ------------------------------------------------------------------------------------------ //
 
+void inicializar_sensores_de_cor() {
+  sensor_direito.begin();
+  sensor_esquerdo.begin();
+}
+
+// ----------------------------------A11-------------------------------------------------------- //
+
 void configurar_velocidade_inicial_dos_motores() {
-  motor_direito.setSpeed(255);
-  motor_esquerdo.setSpeed(255);
+  motor_direito.setSpeed(150);
+  motor_esquerdo.setSpeed(150);
 }
 
 // ------------------------------------------------------------------------------------------ //
 
 void inicializar_monitor_serial() {
   Serial.begin(115200);
-}
-
-// ------------------------------------------------------------------------------------------ //
-
-void inicializar_sensores_de_cor() {
-  sensor_direito.begin();
-  sensor_esquerdo.begin();
 }
 
 // ------------------------------------------------------------------------------------------- //
@@ -202,13 +203,13 @@ void seguir_linha() {
     else if (sec > limite and see <= limite and sdc <= limite and sc <= limite) {
       // CURVA SIMPLES PARA A ESQUERDA
       virar_para_esquerda();
-      // delay(100);
+      delay(100);
     }
 
     else if (sdc > limite and sde <= limite and sec <= limite and sc <= limite) {
       // CURVA SIMPLES PARA A DIREITA
       virar_para_direita();
-      // delay(100);
+      delay(100);
     }
 
     else if (see > limite and sc <= limite and sf <= limite and sde <= limite) {
