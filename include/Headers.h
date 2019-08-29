@@ -20,6 +20,11 @@
 #define PELA_ESQUERDA   1
 #define PELA_DIREITA    2
 
+#define MEIA_VOLTA 1
+#define VIRAR_PARA_A_DIREITA 2
+#define VIRAR_PARA_A_ESQUERDA 3
+#define NENHUM_VERDE_ENCONTRADO 4
+
 // ------------------------------------------------------------------------------------------ //
 
 // Define o modo de eperação de todos os pinos
@@ -34,20 +39,30 @@ void inicializar_monitor_serial();
 // Inicia os sensores de cor
 void inicializar_sensores_de_cor();
 
+boolean passou_um_segundo_desde_a_ultima_leitura_nos_sensores_de_cor();
+
+void inicializar_sensor_de_obstaculo();
+
 // Mostrar os valores obtidos dos sensores
 void mostrar_valores(char opcao);
 
 // Fazer leitura nos sensores de linha
 void fazer_leitura_nos_sensores_de_linha();
 
-// Fazer leitura nos sensores de cor
-void fazer_leitura_nos_sensores_de_cor();
+void checar_sensores_de_cor();
 
-// Verifica onde está os edesivos verdes e executa a rotina correspondente ao caso 
-void verificar_se_existem_adesivos_verdes_e_executar_rotina_correspondente();
+void verificar_se_existe_obstaculo_a_frente();
+ 
+void executar_rotina_correspondente();
 
 // Seguir linha
 void seguir_linha();
+
+// Função que é chamada toda vez que tem uma interrupção
+void tratar_interrupcoes();
+
+
+void desviar_obstaculo();
 
 // Locomover o robô para a frente
 void andar_para_frente();
