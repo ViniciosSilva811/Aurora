@@ -52,7 +52,11 @@ void fazer_leitura_nos_sensores_de_linha();
 void checar_sensores_de_cor();
 
 void verificar_se_existe_obstaculo_a_frente();
- 
+
+void fazer_leitura_no_ultrassom_direito();
+
+void fazer_leitura_no_ultrassom_esquerdo();
+
 void executar_rotina_correspondente();
 
 // Seguir linha
