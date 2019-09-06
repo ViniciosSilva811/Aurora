@@ -39,25 +39,39 @@ void inicializar_monitor_serial();
 // Inicia os sensores de cor
 void inicializar_sensores_de_cor();
 
-boolean passou_um_segundo_desde_a_ultima_leitura_nos_sensores_de_cor();
+boolean passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor();
 
 void inicializar_sensor_de_obstaculo();
 
 // Mostrar os valores obtidos dos sensores
-void mostrar_valores(char opcao);
+void mostrar_valores_lidos(char opcao);
 
 // Fazer leitura nos sensores de linha
 void fazer_leitura_nos_sensores_de_linha();
 
 void checar_sensores_de_cor();
 
+void executar_rotina_correspondente();
+
+void soar_um_bipe();
+
 void verificar_se_existe_obstaculo_a_frente();
 
-void fazer_leitura_no_ultrassom_direito();
+void iniciar_sensores_vl53l0x();
 
-void fazer_leitura_no_ultrassom_esquerdo();
+void fazer_leitura_nos_sensores_vl53l0x();
 
-void executar_rotina_correspondente();
+void fazer_leitura_no_sensor_vl53l0x_frontal();
+
+void fazer_leitura_no_sensor_vl53l0x_direito();
+
+void fazer_leitura_no_sensor_vl53l0x_esquerdo();
+
+void tentar_identificar_a_rampa();
+
+void modo_rampa();
+
+boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais();
 
 // Seguir linha
 void seguir_linha();
