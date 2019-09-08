@@ -57,6 +57,12 @@ void soar_um_bipe();
 
 void verificar_se_existe_obstaculo_a_frente();
 
+void fazer_leitura_nos_sensores_ultrassonicos_laterais();
+
+void fazer_leitura_no_ultrassom_direito();
+
+void fazer_leitura_no_ultrassom_esquerdo();
+
 void iniciar_sensores_vl53l0x();
 
 void fazer_leitura_nos_sensores_vl53l0x();
