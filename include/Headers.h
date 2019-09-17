@@ -57,12 +57,6 @@ void soar_um_bipe();
 
 void verificar_se_existe_obstaculo_a_frente();
 
-void fazer_leitura_nos_sensores_ultrassonicos_laterais();
-
-void fazer_leitura_no_ultrassom_direito();
-
-void fazer_leitura_no_ultrassom_esquerdo();
-
 void iniciar_sensores_vl53l0x();
 
 void fazer_leitura_nos_sensores_vl53l0x();
@@ -79,12 +73,17 @@ void modo_rampa();
 
 boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais();
 
+boolean ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais();
+
+byte fazer_leitura_no_sensor_de_toque_traseiro();
+
 // Seguir linha
 void seguir_linha();
 
 // Função que é chamada toda vez que tem uma interrupção
 void tratar_interrupcoes();
 
+void rotina_de_alinhamento_pos_obstaculo(byte direcao);
 
 void desviar_obstaculo();
 
