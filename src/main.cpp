@@ -613,7 +613,7 @@ void desviar_obstaculo() {
 
       // O robô só começará a procurar pela linha preta após 5 segundos
       // após início do desvio do obstáculo
-      if (millis() >= tempo_de_seguranca + 10000) { 
+      if (millis() >= (tempo_de_seguranca + 10000)) { 
         sc = analogRead(pino_sensor_centro);
 
         if (sc > limite) {
@@ -651,7 +651,7 @@ void desviar_obstaculo() {
       // O robô só começará a procurar pela linha preta após 5 segundos
       // após início do desvio do obstáculo
 
-      if (millis() >= tempo_de_seguranca + 7000) {
+      if (millis() >= tempo_de_seguranca + 10000) {
         
         sc = analogRead(pino_sensor_centro);
 
