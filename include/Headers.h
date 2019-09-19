@@ -87,6 +87,8 @@ void rotina_de_alinhamento_pos_obstaculo(byte direcao);
 
 void desviar_obstaculo();
 
+void modo_resgate();
+
 // Locomover o robô para a frente
 void andar_para_frente();
 

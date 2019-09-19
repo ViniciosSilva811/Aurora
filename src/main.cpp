@@ -33,7 +33,6 @@
 #define pino_sensor_de_obstaculo 18
 #define pino_sensor_de_toque_traseiro 52
 
-
 #define buzzer 53
 
 #define ENDERECO_VL53L0X_FRENTE    0x31
@@ -235,7 +234,7 @@ void seguir_linha() {
         do {
           sec = analogRead(pino_sensor_esquerda_centro);
           sdc = analogRead(pino_sensor_direita_centro);
-        } while (sec > limite and sdc > limite);
+        } while (sec > _limite and sdc > _limite);
         
         parar();
 
@@ -264,7 +263,7 @@ void seguir_linha() {
 
         do {
           see = analogRead(pino_sensor_esquerda_extremo);
-        } while (see > limite);
+        } while (see > _limite);
 
         parar();
 
@@ -293,7 +292,7 @@ void seguir_linha() {
 
         do {
           sde = analogRead(pino_sensor_direita_extremo);
-        } while (sde > limite);
+        } while (sde > _limite);
 
         parar();
 
@@ -614,7 +613,7 @@ void desviar_obstaculo() {
 
       // O robô só começará a procurar pela linha preta após 5 segundos
       // após início do desvio do obstáculo
-      if (millis() >= tempo_de_seguranca + 5000) { 
+      if (millis() >= tempo_de_seguranca + 10000) { 
         sc = analogRead(pino_sensor_centro);
 
         if (sc > limite) {
@@ -652,7 +651,7 @@ void desviar_obstaculo() {
       // O robô só começará a procurar pela linha preta após 5 segundos
       // após início do desvio do obstáculo
 
-      if (millis() >= tempo_de_seguranca + 5000) {
+      if (millis() >= tempo_de_seguranca + 7000) {
         
         sc = analogRead(pino_sensor_centro);
 
@@ -797,8 +796,6 @@ void fazer_leitura_nos_sensores_vl53l0x() {
   fazer_leitura_no_sensor_vl53l0x_esquerdo();
 }
 
-// ------------------------------------------------------------------------------------------ //
-
 /* ------------------------------------------------------------------------------------------ *\
 |                                                                                              |
 |                                                                                              |
@@ -853,14 +850,11 @@ void modo_rampa() {
       fazer_leitura_no_sensor_vl53l0x_direito();
       fazer_leitura_no_sensor_vl53l0x_esquerdo();
 
-      if (medida_lida_pelo_vl53l0x_direita >= 30 or medida_lida_pelo_vl53l0x_esquerda >= 30) {
-        // Entrar em modo resgate
-        parar();
+      // Caso um dos sensores apresente uma distância maior que 30, significa que o robô
+      // chegou à sala de resgate, logo ele deve entrar em modo de resgate das vítimas
 
-        while (true) {
-          soar_um_bipe();
-          delay(200);
-        }
+      if (medida_lida_pelo_vl53l0x_direita >= 30 or medida_lida_pelo_vl53l0x_esquerda >= 30) {
+        modo_resgate();
       }
     }
 
@@ -901,6 +895,25 @@ void modo_rampa() {
       // Serial.println(F("                RETORNANDO PARA A LINHA PELA DIREITA\n"));
       retornar_para_a_linha(PELA_DIREITA);
     }
+  }
+}
+
+/* ------------------------------------------------------------------------------------------ *\
+|                                                                                              |
+|                                                                                              |
+|                          BLOCO RELACINADO AO RESGATE DAS VÍTIMAS                             |
+|                                                                                              |
+|                                                                                              |
+\* ------------------------------------------------------------------------------------------ */
+
+// ------------------------------------------------------------------------------------------ //
+
+void modo_resgate() {
+  parar();
+
+  while (true) {
+    soar_um_bipe();
+    delay(200);
   }
 }
 
