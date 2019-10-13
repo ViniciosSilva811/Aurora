@@ -61,7 +61,11 @@ void iniciar_sensores_vl53l0x();
 
 void fazer_leitura_nos_sensores_vl53l0x();
 
-void fazer_leitura_no_sensor_vl53l0x_frontal();
+void fazer_leitura_no_sensor_vl53l0x_frontal_cima();
+
+void fazer_leitura_no_sensor_vl53l0x_frontal_centro();
+
+void fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
 
 void fazer_leitura_no_sensor_vl53l0x_direito();
 
@@ -70,6 +74,10 @@ void fazer_leitura_no_sensor_vl53l0x_esquerdo();
 void tentar_identificar_a_rampa();
 
 void modo_rampa();
+
+void modo_resgate();
+
+void verificar_situacoes_e_mostrar_resultado();
 
 boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais();
 
