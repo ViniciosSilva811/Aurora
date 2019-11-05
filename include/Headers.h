@@ -71,7 +71,7 @@ void fazer_leitura_no_sensor_vl53l0x_direito();
 
 void fazer_leitura_no_sensor_vl53l0x_esquerdo();
 
-void tentar_identificar_a_rampa();
+void procurar_a_rampa();
 
 void modo_rampa();
 

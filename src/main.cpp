@@ -34,7 +34,7 @@
 #define pino_sensor_de_obstaculo 18
 #define pino_sensor_de_toque_traseiro 52
 
-#define buzzer 53
+#define buzzer 51
 
 #define ENDERECO_VL53L0X_FRONTAL_CIMA   0x31
 #define ENDERECO_VL53L0X_FRONTAL_CENTRO 0x32
@@ -75,7 +75,7 @@ volatile short interrupcao = 0;
 
 boolean obstaculo = false;
 
-char ultima_curva = 'N';
+char ultima_curva = 'E';
 
 int medida_lida_pelo_vl53l0x_frontal_cima;
 int medida_lida_pelo_vl53l0x_frontal_centro;
@@ -123,16 +123,19 @@ void setup() {
   inicializar_sensor_de_obstaculo();
   iniciar_sensores_vl53l0x();
   inicializar_monitor_serial();
+  soar_um_bipe();
+  delay(100);
+  soar_um_bipe();
+  andar_para_frente();
 }
 
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
   fazer_leitura_nos_sensores_de_linha();
-  // mostrar_valores_lidos('L');
   seguir_linha();
   verificar_se_existe_obstaculo_a_frente();
-  tentar_identificar_a_rampa();
+  procurar_a_rampa();
 }
 
 // ---------------------------------------- FUNÇÕES ----------------------------------------- //
@@ -158,8 +161,8 @@ void configurar_pinos() {
 // ------------------------------------------------------------------------------------------ //
 
 void configurar_velocidade_inicial_dos_motores() {
-  motor_direito.setSpeed(255);
-  motor_esquerdo.setSpeed(255);
+  motor_direito.setSpeed(200);
+  motor_esquerdo.setSpeed(200);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -258,17 +261,18 @@ void seguir_linha() {
 
       if (passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
-        delay(100);
+        delay(50);
 
         do {
           sec = analogRead(pino_sensor_esquerda_centro);
           sdc = analogRead(pino_sensor_direita_centro);
+          delay(10);
         } while (sec > _limite and sdc > _limite);
         
         parar();
 
         andar_para_tras();
-        delay(100);
+        delay(60);
 
         parar();
         delay(500);
@@ -278,26 +282,26 @@ void seguir_linha() {
       }
       else {
         andar_para_frente();
-        delay(100);
       }
     }
 
-    else if (see > _limite and sde <= limite and sc > _limite and sec > _limite and sdc <= limite) {
+    else if (see > limite and sde <= limite and sc > _limite and sec > _limite and sdc <= _limite) {
       // CRUZAMENTO COM PRETO NA ESQUERDA
       // Serial.println(F("                CRUZAMENTO COM PRETO NA ESQUERDA\n"))
 
       if (passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
-        delay(100);
+        delay(50);
 
         do {
           see = analogRead(pino_sensor_esquerda_extremo);
+          delay(10);
         } while (see > _limite);
 
         parar();
 
         andar_para_tras();
-        delay(100);
+        delay(60);
 
         parar();
         delay(500);
@@ -307,7 +311,6 @@ void seguir_linha() {
       }
       else {
         andar_para_frente();
-        // delay(50);
       }
     }
 
@@ -317,16 +320,17 @@ void seguir_linha() {
 
       if (passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
-        delay(100);
+        delay(50);
 
         do {
           sde = analogRead(pino_sensor_direita_extremo);
+          delay(10);
         } while (sde > _limite);
 
         parar();
 
         andar_para_tras();
-        delay(100);
+        delay(50);
 
         parar();
         delay(500);
@@ -336,7 +340,6 @@ void seguir_linha() {
       }
       else {
         andar_para_frente();
-        delay(100);
       }
     }
 
@@ -372,6 +375,7 @@ void seguir_linha() {
 
       do {
         sde = analogRead(pino_sensor_direita_extremo);
+        delay(10);
       } while (sde > limite);
 
       parar();
@@ -391,22 +395,22 @@ void seguir_linha() {
       // Serial.println(F("                CURVA DE 90° PARA A ESQUERDA\n"));
 
       andar_para_frente();
-      delay(50);
 
       fazer_leitura_nos_sensores_de_linha();
 
       if (see > limite and sc > limite and sde > limite and passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
-        delay(100);
+        delay(50);
         
         do {
           sde = analogRead(pino_sensor_esquerda_extremo);
+          delay(10);
         } while (sde > limite);
 
         parar();
 
         andar_para_tras();
-        delay(100);
+        delay(60);
 
         parar();
         delay(500);
@@ -424,23 +428,24 @@ void seguir_linha() {
     else if (sde > limite and see <= limite and sc > _limite and sdc > _limite) {
       // CURVA DE 90° PARA A DIREITA
       // Serial.println(F("CURVA DE 90° PARA A DIREITA"));
+      
       andar_para_frente();
-      delay(50);
 
       fazer_leitura_nos_sensores_de_linha();
 
       if (see > limite and sc > limite and sde > limite and passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
-        delay(100);
+        delay(50);
 
         do {
           sde = analogRead(pino_sensor_direita_extremo);
+          delay(10);
         } while (sde > limite);
 
         parar();
 
         andar_para_tras();
-        delay(100);
+        delay(60);
 
         parar();
         delay(500);
@@ -458,20 +463,19 @@ void seguir_linha() {
     else if (sc > limite and see <= limite and sde <= limite and sec <= limite and sdc <= limite) {
       // Serial.println(F("                GAP\n"));
       andar_para_frente();
-      delay(50);
     }
 
     else if (sc > limite and sec > limite and sdc <= limite and see <= limite and sde <= limite) {
       // Serial.println(F("                CURVA SIMPLES PARA A ESQUERDA\n"));
       virar_para_esquerda();
-      delay(50);
+      delay(10);
       andar_para_frente();
     }
 
     else if (sc > limite and sdc > limite and sec <= limite and see <= limite and sde <= limite) {
       // Serial.println(F("                CURVA SIMPLES PARA A DIREITA\n"));
       virar_para_direita();
-      delay(50);
+      delay(10);
       andar_para_frente();
     }
 
@@ -547,19 +551,26 @@ void executar_rotina_correspondente() {
     case VIRAR_PARA_A_ESQUERDA:
       soar_um_bipe();
       andar_para_frente();
-      delay(100);
+      delay(50);
       girar_90_graus(PARA_A_ESQUERDA);
       break;
 
     case VIRAR_PARA_A_DIREITA:
       soar_um_bipe();
       andar_para_frente();
-      delay(100);
+      delay(50);
       girar_90_graus(PARA_A_DIREITA);
       break;
     
     case NENHUM_VERDE_ENCONTRADO:
-      andar_para_frente();
+      sf = analogRead(pino_sensor_frente);
+      if (sf > _limite) {
+        andar_para_frente();
+      }
+      else {
+        andar_para_tras();
+        delay(50);
+      }
       break;
   }
 }
@@ -567,7 +578,7 @@ void executar_rotina_correspondente() {
 // ------------------------------------------------------------------------------------------ //
 
 boolean passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor () {
-  if (millis() >= (tempo_desde_a_ultima_leitura_de_cor + 1000)) {
+  if (millis() >= (tempo_desde_a_ultima_leitura_de_cor + 500)) {
     return true;
   }
   return false;
@@ -600,7 +611,7 @@ void tratar_interrupcoes() {
 // ------------------------------------------------------------------------------------------ //
 
 void verificar_se_existe_obstaculo_a_frente() {
-  if (obstaculo == true) {
+  if (obstaculo) {
     desviar_obstaculo();
     obstaculo = false;
     interrupcao = 0;
@@ -615,21 +626,17 @@ void desviar_obstaculo() {
 
   soar_um_bipe();
   
-  delay(500);
-
-  // do {
-  //   fazer_leitura_no_sensor_vl53l0x_frontal_cima();
-  // } while (medida_lida_pelo_vl53l0x_frontal_baixo <= 3);
-
+  delay(200);
 
   // Desviar para a direita
   if (ultima_curva == 'D') {
     virar_para_direita();
-    delay(2000);
 
-    motor_esquerdo.setSpeed(40);
-    
+    delay(1200);
+
     andar_para_frente();
+   
+    motor_esquerdo.setSpeed(25);
 
     tempo_de_seguranca = millis();
 
@@ -640,17 +647,17 @@ void desviar_obstaculo() {
         motor_esquerdo.setSpeed(255);
         virar_para_direita();
         delay(50);
-        motor_esquerdo.setSpeed(40);
+        motor_esquerdo.setSpeed(25);
         andar_para_frente();
       }
 
-      // O robô só começará a procurar pela linha preta após 5 segundos
+      // O robô só começará a procurar pela linha preta após 10 segundos
       // após início do desvio do obstáculo
-      if (millis() >= (tempo_de_seguranca + 10000)) { 
+      if (millis() >= (tempo_de_seguranca + 7000)) { 
         sc = analogRead(pino_sensor_centro);
 
         if (sc > limite) {
-          motor_esquerdo.setSpeed(255);
+          configurar_velocidade_inicial_dos_motores();
           soar_um_bipe();
           rotina_de_alinhamento_pos_obstaculo(PARA_A_DIREITA);
           break;
@@ -662,11 +669,12 @@ void desviar_obstaculo() {
   // Desviar para a esquerda
   else {
     virar_para_esquerda();
-    delay(2000);
 
-    motor_direito.setSpeed(45);
+    delay(1250);
     
     andar_para_frente();
+
+    motor_direito.setSpeed(30);
 
     tempo_de_seguranca = millis();
 
@@ -677,19 +685,19 @@ void desviar_obstaculo() {
         motor_direito.setSpeed(255);
         virar_para_esquerda();
         delay(50);
-        motor_direito.setSpeed(45);
+        motor_direito.setSpeed(30);
         andar_para_frente();
       }
       
-      // O robô só começará a procurar pela linha preta após 5 segundos
+      // O robô só começará a procurar pela linha preta após 10 segundos
       // após início do desvio do obstáculo
 
-      if (millis() >= tempo_de_seguranca + 10000) {
+      if (millis() >= tempo_de_seguranca + 7000) {
         
         sc = analogRead(pino_sensor_centro);
 
         if (sc > limite) {
-          motor_direito.setSpeed(255);
+          configurar_velocidade_inicial_dos_motores();
           soar_um_bipe();
           rotina_de_alinhamento_pos_obstaculo(PARA_A_ESQUERDA);
           break;
@@ -703,24 +711,21 @@ void desviar_obstaculo() {
 
 void rotina_de_alinhamento_pos_obstaculo(byte direcao) {
   andar_para_frente();
-  delay(600);
+  delay(150);
   
   switch (direcao){
     case PARA_A_DIREITA:
       virar_para_direita();
-      delay(600);
       break;
     case PARA_A_ESQUERDA:
       virar_para_esquerda();
-      delay(600);
+      delay(150);
       break;
   }
 
   do {
     st = analogRead(pino_sensor_traseiro);
-  } while (st <= 850);
-
-  delay(300);
+  } while (st <= 950);
 
   // O robô anda para trás até que a chave seja tocada 
   andar_para_tras();
@@ -892,7 +897,7 @@ void fazer_leitura_nos_sensores_vl53l0x() {
 \* ------------------------------------------------------------------------------------------ */
 
 boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
-  if (millis() >= (tempo_desde_a_ultima_leitura_nos_sensores_laterais + 5000)) {
+  if (millis() >= (tempo_desde_a_ultima_leitura_nos_sensores_laterais + 3000)) {
     tempo_desde_a_ultima_leitura_nos_sensores_laterais = millis();
     return true;
   }
@@ -904,7 +909,7 @@ boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
 // ------------------------------------------------------------------------------------------ //
 
 boolean ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
-  if (millis() >= (tempo_desde_a_ultima_leitura_nos_sensores_laterais + 2000)) {
+  if (millis() >= (tempo_desde_a_ultima_leitura_nos_sensores_laterais + 1000)) {
     tempo_desde_a_ultima_leitura_nos_sensores_laterais = millis();
     return true;
   }
@@ -915,7 +920,7 @@ boolean ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
 
 // ------------------------------------------------------------------------------------------ //
 
-void tentar_identificar_a_rampa() {
+void procurar_a_rampa() {
   if (ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais()) {
     fazer_leitura_no_sensor_vl53l0x_direito();
     fazer_leitura_no_sensor_vl53l0x_esquerdo();
@@ -932,6 +937,9 @@ void tentar_identificar_a_rampa() {
 // ------------------------------------------------------------------------------------------ //
 
 void modo_rampa() {
+  motor_direito.setSpeed(255);
+  motor_esquerdo.setSpeed(255);
+  
   while (true) {
     if (ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais()) {
       fazer_leitura_no_sensor_vl53l0x_direito();
@@ -1047,21 +1055,21 @@ void fechar_cacamba() {
 
 void modo_resgate() {
   soar_um_bipe();
-  delay(200);
+  delay(100);
   soar_um_bipe();
 
   andar_para_frente();
-  delay(3000);
+  delay(1000);
 
   do {
     fazer_leitura_no_sensor_vl53l0x_frontal_cima();
     fazer_leitura_no_sensor_vl53l0x_direito();
     if (medida_lida_pelo_vl53l0x_direita <= 3) {
       virar_para_esquerda();
-      delay(200);
+      delay(100);
       andar_para_frente();
     }
-  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 40);
+  } while (medida_lida_pelo_vl53l0x_frontal_cima >= 40);
 
   parar();
 
@@ -1153,7 +1161,7 @@ void virar_para_esquerda() {
 
 void girar_90_graus(byte direcao) {
   andar_para_frente();
-  delay(600);
+  delay(350);
   
   switch (direcao){
     case PARA_A_DIREITA:
@@ -1168,16 +1176,16 @@ void girar_90_graus(byte direcao) {
 
   do {
     sf = analogRead(pino_sensor_frente);
-  } while (sf <= limite);
+  } while (sf <= _limite);
 
   switch (direcao){
     case PARA_A_DIREITA:
       virar_para_direita();
-      delay(300);
+      delay(100);
       break;
     case PARA_A_ESQUERDA:
       virar_para_esquerda();
-      delay(300);
+      delay(100);
       break;
   }
 
@@ -1192,14 +1200,14 @@ void meia_volta() {
   delay(200);
 
   virar_para_esquerda();
-  delay(1450);
+  delay(1250);
 
   do {
     sf = analogRead(pino_sensor_frente);
   } while (sf <= 600);
 
   andar_para_frente();
-  delay(400);
+  delay(200);
 }
 
 // ------------------------------------------------------------------------------------------ //
