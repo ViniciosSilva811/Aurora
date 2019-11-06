@@ -30,8 +30,8 @@
 // Define o modo de eperação de todos os pinos
 void configurar_pinos();
 
-// Configura a velocidade inicial dos motores
-void configurar_velocidade_inicial_dos_motores();
+// Configura a velocidade dos motores
+void configurar_velocidade_dos_motores(byte valor);
 
 // Inicia a comunicação com o Monitor Serial
 void inicializar_monitor_serial();
@@ -47,13 +47,15 @@ void inicializar_sensor_de_obstaculo();
 void mostrar_valores_lidos(char opcao);
 
 // Fazer leitura nos sensores de linha
-void fazer_leitura_nos_sensores_de_linha();
+void fazer_leitura_nos_sensores_de_linha_principais();
 
 void checar_sensores_de_cor();
 
 void executar_rotina_correspondente();
 
 void soar_um_bipe();
+
+void soar_dois_bipes();
 
 void verificar_se_existe_obstaculo_a_frente();
 
@@ -88,7 +90,7 @@ byte fazer_leitura_no_sensor_de_toque_traseiro();
 // Seguir linha
 void seguir_linha();
 
-// Função que é chamada toda vez que tem uma interrupção
+// Função que é chamada toda vez em que há uma interrupção
 void tratar_interrupcoes();
 
 void rotina_de_alinhamento_pos_obstaculo(byte direcao);
