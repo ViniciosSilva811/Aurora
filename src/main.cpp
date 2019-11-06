@@ -125,7 +125,7 @@ void setup() {
   configurar_velocidade_dos_motores(200);
   inicializar_sensores_de_cor();
   inicializar_sensor_de_obstaculo();
-  iniciar_sensores_vl53l0x();
+  inicializar_sensores_vl53l0x();
   inicializar_monitor_serial();
   soar_dois_bipes();
   andar_para_frente();
@@ -148,6 +148,26 @@ void loop() {
 |                                                                                              |
 \* ------------------------------------------------------------------------------------------ */
 
+void configurar_pinos() {
+  pinMode(pino_sensor_esquerda_extremo, INPUT);
+  pinMode(pino_sensor_esquerda_centro, INPUT);
+  pinMode(pino_sensor_frente, INPUT);
+  pinMode(pino_sensor_centro, INPUT);
+  pinMode(pino_sensor_direita_centro, INPUT);
+  pinMode(pino_sensor_direita_extremo, INPUT);
+  pinMode(pino_sensor_traseiro, INPUT);
+  pinMode(pino_sensor_de_obstaculo, INPUT_PULLUP);
+  pinMode(pino_sensor_de_toque_traseiro, INPUT_PULLUP);
+  pinMode(pino_buzzer, OUTPUT);
+  pinMode(PINO_XSHUT_VL53L0X_FRONTAL_CIMA, OUTPUT);
+  pinMode(PINO_XSHUT_VL53L0X_FRONTAL_CENTRO, OUTPUT);
+  pinMode(PINO_XSHUT_VL53L0X_FRONTAL_BAIXO, OUTPUT);
+  pinMode(PINO_XSHUT_VL53L0X_DIREITO, OUTPUT);
+  pinMode(PINO_XSHUT_VL53L0X_ESQUERDO, OUTPUT);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
 void inicializar_monitor_serial() {
   Serial.begin(115200);
 }
@@ -161,7 +181,13 @@ void inicializar_sensores_de_cor() {
 
 // ------------------------------------------------------------------------------------------ //
 
-void iniciar_sensores_vl53l0x() {
+void inicializar_sensor_de_obstaculo() {
+  attachInterrupt(digitalPinToInterrupt(pino_sensor_de_obstaculo), tratar_interrupcoes, FALLING);
+}
+
+// ------------------------------------------------------------------------------------------ //
+
+void inicializar_sensores_vl53l0x() {
   // Hibernado todos os sensores
   digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_CIMA, LOW);
   digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_CENTRO, LOW);
@@ -224,38 +250,12 @@ void iniciar_sensores_vl53l0x() {
 
 // ------------------------------------------------------------------------------------------ //
 
-void iniciar_servo_motores() {
+void inicializar_servo_motores() {
   servo_garra_direito.attach(pino_servo_garra_direito);
   servo_garra_esquerdo.attach(pino_servo_garra_esquerdo);
   servo_guindaste_direito.attach(pino_servo_guindaste_direito);
   servo_guindaste_esquerdo.attach(pino_servo_guindaste_esquerdo);
   servo_cacamba.attach(pino_servo_cacamba);
-}
-
-// ------------------------------------------------------------------------------------------ //
-
-void inicializar_sensor_de_obstaculo() {
-  attachInterrupt(digitalPinToInterrupt(pino_sensor_de_obstaculo), tratar_interrupcoes, FALLING);
-}
-
-// ------------------------------------------------------------------------------------------ //
-
-void configurar_pinos() {
-  pinMode(pino_sensor_esquerda_extremo, INPUT);
-  pinMode(pino_sensor_esquerda_centro, INPUT);
-  pinMode(pino_sensor_frente, INPUT);
-  pinMode(pino_sensor_centro, INPUT);
-  pinMode(pino_sensor_direita_centro, INPUT);
-  pinMode(pino_sensor_direita_extremo, INPUT);
-  pinMode(pino_sensor_traseiro, INPUT);
-  pinMode(pino_sensor_de_obstaculo, INPUT_PULLUP);
-  pinMode(pino_sensor_de_toque_traseiro, INPUT_PULLUP);
-  pinMode(pino_buzzer, OUTPUT);
-  pinMode(PINO_XSHUT_VL53L0X_FRONTAL_CIMA, OUTPUT);
-  pinMode(PINO_XSHUT_VL53L0X_FRONTAL_CENTRO, OUTPUT);
-  pinMode(PINO_XSHUT_VL53L0X_FRONTAL_BAIXO, OUTPUT);
-  pinMode(PINO_XSHUT_VL53L0X_DIREITO, OUTPUT);
-  pinMode(PINO_XSHUT_VL53L0X_ESQUERDO, OUTPUT);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -458,7 +458,7 @@ void mostrar_valores_lidos(char opcao) {
     Serial.println(CD);
   }
 
-  else if (opcao == 'O') {
+  else if (opcao == 'V') {
     Serial.print(F("SensorF cima: "));
     Serial.print(medida_lida_pelo_vl53l0x_frontal_cima);
     Serial.print(F("    "));
@@ -631,7 +631,7 @@ void seguir_linha() {
       // CRUZAMENTO TOTAL
       // Serial.println(F("                CRUZAMENTO TOTAL\n"))
 
-      if (passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
+      if (passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
         delay(50);
 
@@ -661,7 +661,7 @@ void seguir_linha() {
       // CRUZAMENTO COM PRETO NA ESQUERDA
       // Serial.println(F("                CRUZAMENTO COM PRETO NA ESQUERDA\n"))
 
-      if (passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
+      if (passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
         delay(50);
 
@@ -690,7 +690,7 @@ void seguir_linha() {
       // CRUZAMENTO COM PRETO NA DIREITA
       // Serial.println(F("                CRUZAMENTO COM PRETO NA DIREITA\n"))
 
-      if (passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
+      if (passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
         delay(50);
 
@@ -770,7 +770,7 @@ void seguir_linha() {
 
       fazer_leitura_nos_sensores_de_linha_principais();
 
-      if (see > limite and sc > limite and sde > limite and passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
+      if (see > limite and sc > limite and sde > limite and passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
         delay(50);
         
@@ -805,7 +805,7 @@ void seguir_linha() {
 
       fazer_leitura_nos_sensores_de_linha_principais();
 
-      if (see > limite and sc > limite and sde > limite and passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor()) {
+      if (see > limite and sc > limite and sde > limite and passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor()) {
         andar_para_frente();
         delay(50);
 
@@ -953,7 +953,7 @@ void executar_rotina_correspondente() {
 
 // ------------------------------------------------------------------------------------------ //
 
-boolean passou_dois_segundos_desde_a_ultima_leitura_nos_sensores_de_cor () {
+boolean passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor () {
   if (millis() >= (tempo_desde_a_ultima_leitura_de_cor + 500)) {
     return true;
   }
@@ -1020,7 +1020,7 @@ void desviar_obstaculo() {
         andar_para_frente();
       }
 
-      // O robô só começará a procurar pela linha preta após 10 segundos
+      // O robô só começará a procurar pela linha preta após 7 segundos
       // após início do desvio do obstáculo
       if (millis() >= (tempo_de_seguranca + 7000)) { 
         sc = analogRead(pino_sensor_centro);
@@ -1058,7 +1058,7 @@ void desviar_obstaculo() {
         andar_para_frente();
       }
       
-      // O robô só começará a procurar pela linha preta após 10 segundos
+      // O robô só começará a procurar pela linha preta após 7 segundos
       // após início do desvio do obstáculo
 
       if (millis() >= tempo_de_seguranca + 7000) {
@@ -1093,7 +1093,7 @@ void rotina_de_alinhamento_pos_obstaculo(byte direcao) {
   }
 
   do {
-    st = analogRead(pino_sensor_traseiro);
+    fazer_leitura_no_sensor_de_linha_traseiro();
   } while (st <= 950);
 
   // O robô anda para trás até que a chave seja tocada 
@@ -1118,7 +1118,7 @@ void rotina_de_alinhamento_pos_obstaculo(byte direcao) {
 |                                                                                              |
 \* ------------------------------------------------------------------------------------------ */
 
-boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
+boolean passou_3_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
   if (millis() >= (tempo_desde_a_ultima_leitura_nos_sensores_laterais + 3000)) {
     tempo_desde_a_ultima_leitura_nos_sensores_laterais = millis();
     return true;
@@ -1130,7 +1130,7 @@ boolean ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
 
 // ------------------------------------------------------------------------------------------ //
 
-boolean ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
+boolean passou_1_segundo_desde_a_ultima_leitura_nos_sensores_laterais() {
   if (millis() >= (tempo_desde_a_ultima_leitura_nos_sensores_laterais + 1000)) {
     tempo_desde_a_ultima_leitura_nos_sensores_laterais = millis();
     return true;
@@ -1143,7 +1143,7 @@ boolean ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais() {
 // ------------------------------------------------------------------------------------------ //
 
 void procurar_a_rampa() {
-  if (ja_passou_5_segundos_desde_a_ultima_leitura_nos_sensores_laterais()) {
+  if (passou_3_segundos_desde_a_ultima_leitura_nos_sensores_laterais()) {
     fazer_leitura_no_sensor_vl53l0x_direito();
     fazer_leitura_no_sensor_vl53l0x_esquerdo();
 
@@ -1162,7 +1162,7 @@ void modo_rampa() {
   configurar_velocidade_dos_motores(255);
   
   while (true) {
-    if (ja_passou_2_segundos_desde_a_ultima_leitura_nos_sensores_laterais()) {
+    if (passou_1_segundo_desde_a_ultima_leitura_nos_sensores_laterais()) {
       fazer_leitura_no_sensor_vl53l0x_direito();
       fazer_leitura_no_sensor_vl53l0x_esquerdo();
 
