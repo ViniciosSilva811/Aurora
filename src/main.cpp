@@ -42,10 +42,10 @@
 #define ENDERECO_VL53L0X_DIREITO           0x34
 #define ENDERECO_VL53L0X_ESQUERDO          0x35
 
-#define PINO_XSHUT_VL53L0X_FRONTAL_CIMA    22
+#define PINO_XSHUT_VL53L0X_FRONTAL_CIMA    25
 #define PINO_XSHUT_VL53L0X_DIREITO         23
 #define PINO_XSHUT_VL53L0X_ESQUERDO        24
-#define PINO_XSHUT_VL53L0X_FRONTAL_BAIXO   25
+#define PINO_XSHUT_VL53L0X_FRONTAL_BAIXO   22
 #define PINO_XSHUT_VL53L0X_FRONTAL_CENTRO  26
 
 #define pino_servo_garra_direito           26
@@ -303,7 +303,7 @@ void virar_para_esquerda() {
 
 void girar_90_graus(byte direcao) {
   andar_para_frente();
-  delay(300);
+  delay(350);
   
   switch (direcao){
     case PARA_A_DIREITA:
@@ -970,7 +970,7 @@ boolean passou_meio_segundo_desde_a_ultima_leitura_nos_sensores_de_cor () {
 
 void tratar_interrupcoes() {
   interrupcao ++;
-  if (interrupcao == 1) {
+  if (interrupcao == 1 and (millis() > 1000L)) {
     obstaculo = true;
   } 
   else {
@@ -981,7 +981,7 @@ void tratar_interrupcoes() {
 // ------------------------------------------------------------------------------------------ //
 
 void verificar_se_existe_obstaculo_a_frente() {
-  if (obstaculo and millis() > 1000L) {
+  if (obstaculo) {
     desviar_obstaculo();
     obstaculo = false;
     interrupcao = 0;
@@ -994,8 +994,10 @@ void desviar_obstaculo() {
   andar_para_tras();
 
   soar_um_bipe();
-  
-  delay(200);
+
+  unsigned long tempo_andar_para_tras = millis() + 200;
+
+  while(millis() <= tempo_andar_para_tras);
 
   // Desviar para a direita
   if (ultima_curva == 'D') {
@@ -1036,7 +1038,7 @@ void desviar_obstaculo() {
   }
 
   // Desviar para a esquerda
-  else {
+  else if(ultima_curva == 'E') {
     virar_para_esquerda();
 
     delay(1250);
@@ -1149,8 +1151,6 @@ void procurar_a_rampa() {
 
     if (medida_lida_pelo_vl53l0x_direito <= 15 and medida_lida_pelo_vl53l0x_esquerdo <= 15) {
       soar_um_bipe();
-      delay(100);
-      soar_um_bipe();
       modo_rampa();
     }
   }
@@ -1176,41 +1176,46 @@ void modo_rampa() {
 
     fazer_leitura_nos_sensores_de_linha_principais();
     
-    if (sf > limite and see > limite and sde > limite and sc > limite and sdc > limite and sec > limite) {
-      andar_para_frente();
-    }
-
-    else if (sc > limite and see <= limite and sde <= limite and sec <= limite and sdc <= limite) {
-      // Serial.println(F("                GAP\n"));
-      andar_para_frente();
-    }
-
-    else if (sc > limite and sec > limite and sdc <= limite and see <= limite and sde <= limite) {
-      // Serial.println(F("                CURVA SIMPLES PARA A ESQUERDA\n"));
-      virar_para_esquerda();
-      delay(10);
-      andar_para_frente();
-    }
-
-    else if (sc > limite and sdc > limite and sec <= limite and see <= limite and sde <= limite) {
-      // Serial.println(F("                CURVA SIMPLES PARA A DIREITA\n"));
-      virar_para_direita();
-      delay(10);
-      andar_para_frente();
-    }
-
-    else if (see > _limite and sec <= limite and sc <= limite and sde <= limite and sdc <= limite) {
-      // Serial.println(F("                RETORNANDO PARA A LINHA PELA ESQUERDA\n"));
-      retornar_para_a_linha(PELA_ESQUERDA);
-    }
-
-    else if (sde > _limite and sdc <= limite and sc <= limite and see <= limite and sec <= limite) {
-      // Serial.println(F("                RETORNANDO PARA A LINHA PELA DIREITA\n"));
-      retornar_para_a_linha(PELA_DIREITA);
-    }
+    seguir_linha_rampa();
   }
 }
 
+// ------------------------------------------------------------------------------------------ //
+
+void seguir_linha_rampa() {
+  if (sf > limite and see > limite and sde > limite and sc > limite and sdc > limite and sec > limite) {
+    andar_para_frente();
+  }
+
+  else if (sc > limite and see <= limite and sde <= limite and sec <= limite and sdc <= limite) {
+    // Serial.println(F("                GAP\n"));
+    andar_para_frente();
+  }
+
+  else if (sc > limite and sec > limite and sdc <= limite and see <= limite and sde <= limite) {
+    // Serial.println(F("                CURVA SIMPLES PARA A ESQUERDA\n"));
+    virar_para_esquerda();
+    delay(10);
+    andar_para_frente();
+  }
+
+  else if (sc > limite and sdc > limite and sec <= limite and see <= limite and sde <= limite) {
+    // Serial.println(F("                CURVA SIMPLES PARA A DIREITA\n"));
+    virar_para_direita();
+    delay(10);
+    andar_para_frente();
+  }
+
+  else if (see > _limite and sec <= limite and sc <= limite and sde <= limite and sdc <= limite) {
+    // Serial.println(F("                RETORNANDO PARA A LINHA PELA ESQUERDA\n"));
+    retornar_para_a_linha(PELA_ESQUERDA);
+  }
+
+  else if (sde > _limite and sdc <= limite and sc <= limite and see <= limite and sec <= limite) {
+    // Serial.println(F("                RETORNANDO PARA A LINHA PELA DIREITA\n"));
+    retornar_para_a_linha(PELA_DIREITA);
+  }
+}
 /* ------------------------------------------------------------------------------------------ *\
 |                                                                                              |
 |                                                                                              |
@@ -1220,8 +1225,6 @@ void modo_rampa() {
 \* ------------------------------------------------------------------------------------------ */
 
 void modo_resgate() {
-  soar_um_bipe();
-  delay(100);
   soar_um_bipe();
 
   andar_para_frente();

@@ -208,6 +208,8 @@ void procurar_a_rampa();
 
 void modo_rampa();
 
+void seguir_linha_rampa();
+
 boolean passou_3_segundos_desde_a_ultima_leitura_nos_sensores_laterais();
 
 boolean passou_1_segundo_desde_a_ultima_leitura_nos_sensores_laterais();
