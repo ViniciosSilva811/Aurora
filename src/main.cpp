@@ -134,10 +134,11 @@ void setup() {
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
-  fazer_leitura_nos_sensores_de_linha_principais();
-  seguir_linha();
-  verificar_se_existe_obstaculo_a_frente();
-  procurar_a_rampa();
+  modo_resgate();
+  // fazer_leitura_nos_sensores_de_linha_principais();
+  // seguir_linha();
+  // verificar_se_existe_obstaculo_a_frente();
+  // procurar_a_rampa();
 }
 
 /* ------------------------------------------------------------------------------------------ *\
@@ -476,6 +477,12 @@ void mostrar_valores_lidos(char opcao) {
   }
 }
 
+// ---------------------------------- FUNÇÃO ESPERAR ---------------------------------------- //
+
+void esperar(unsigned long ms) {
+  unsigned long tempo = millis() + ms;
+  while(millis() < tempo);
+}
 /* ------------------------------------------------------------------------------------------ *\
 |                                                                                              |
 |                                                                                              |
@@ -995,9 +1002,7 @@ void desviar_obstaculo() {
 
   soar_um_bipe();
 
-  unsigned long tempo_andar_para_tras = millis() + 200;
-
-  while(millis() <= tempo_andar_para_tras);
+  esperar(200);
 
   // Desviar para a direita
   if (ultima_curva == 'D') {
@@ -1253,7 +1258,6 @@ void modo_resgate() {
   //   delay(100);
   //   verificar_situacoes_e_mostrar_resultado();
   // }
-  delay(250000);
 }
 
 // ------------------------------------------------------------------------------------------ //
