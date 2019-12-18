@@ -18,23 +18,23 @@
 
 // --------------------------------------- CONSTANTES --------------------------------------- //
 
-#define pino_sensor_traseiro         A1
-#define pino_sensor_esquerda_extremo A3 
-#define pino_sensor_esquerda_centro  A5
-#define pino_sensor_frente           A7
-#define pino_sensor_centro           A9
-#define pino_sensor_direita_centro   A11
-#define pino_sensor_direita_extremo  A13
+#define pino_sensor_esquerda_extremo A1 
+#define pino_sensor_esquerda_centro  A2
+#define pino_sensor_frente           A3
+#define pino_sensor_centro           A4
+#define pino_sensor_direita_centro   A5
+#define pino_sensor_direita_extremo  A6
+#define pino_sensor_traseiro         A7
 
-#define SDAD 36                                     // Pino SDA do sensor de cor direito
-#define SCLD 38                                     // Pino SCL do sensor de cor direito
-#define SDAE 40                                     // Pino SDA do sensor do cor esquerdo
-#define SCLE 42                                     // Pino SCL do sensor de cor esquerdo
+#define SDAE 38                                     // Pino SDA do sensor do cor esquerdo
+#define SCLE 40                                     // Pino SCL do sensor de cor esquerdo
+#define SDAD 42                                     // Pino SDA do sensor de cor direito
+#define SCLD 44                                     // Pino SCL do sensor de cor direito
 
 #define pino_sensor_de_obstaculo           18
-#define pino_sensor_de_toque_traseiro      52
+#define pino_sensor_de_toque_traseiro      36
 
-#define pino_buzzer                        51
+#define pino_buzzer                        17
 
 #define ENDERECO_VL53L0X_FRONTAL_CIMA      0x31
 #define ENDERECO_VL53L0X_FRONTAL_CENTRO    0x32
@@ -42,17 +42,17 @@
 #define ENDERECO_VL53L0X_DIREITO           0x34
 #define ENDERECO_VL53L0X_ESQUERDO          0x35
 
-#define PINO_XSHUT_VL53L0X_FRONTAL_CIMA    25
-#define PINO_XSHUT_VL53L0X_DIREITO         23
-#define PINO_XSHUT_VL53L0X_ESQUERDO        24
-#define PINO_XSHUT_VL53L0X_FRONTAL_BAIXO   22
-#define PINO_XSHUT_VL53L0X_FRONTAL_CENTRO  26
+#define PINO_XSHUT_VL53L0X_FRONTAL_CIMA    29
+#define PINO_XSHUT_VL53L0X_DIREITO         25
+#define PINO_XSHUT_VL53L0X_ESQUERDO        27
+#define PINO_XSHUT_VL53L0X_FRONTAL_BAIXO   23
+#define PINO_XSHUT_VL53L0X_FRONTAL_CENTRO  31
 
-#define pino_servo_garra_direito           26
-#define pino_servo_garra_esquerdo          27
-#define pino_servo_guindaste_direito       28
-#define pino_servo_guindaste_esquerdo      29
-#define pino_servo_cacamba                 30
+#define pino_servo_garra_direito           8
+#define pino_servo_garra_esquerdo          9
+#define pino_servo_guindaste_direito       10
+#define pino_servo_guindaste_esquerdo      11
+#define pino_servo_cacamba                 12
 
 // --------------------------------------- VARIÁVEIS ---------------------------------------- //
 
@@ -64,7 +64,7 @@ int sdc;                                            // Sensor direito central
 int sde;                                            // Sensor direito extremo
 int st;                                             // Sensor traseiro
 
-int limite  = 200;                                // Valor intermediário entre preto e branco
+int limite  = 150;                                  // Valor intermediário entre preto e branco
 int _limite = 500; 
 
 uint16_t RE, GE, BE, CE, RD, GD, BD, CD;            // Variáveis do sensor de cor
@@ -126,6 +126,7 @@ void setup() {
   inicializar_sensores_de_cor();
   inicializar_sensor_de_obstaculo();
   inicializar_sensores_vl53l0x();
+  inicializar_servo_motores();
   inicializar_monitor_serial();
   soar_dois_bipes();
   andar_para_frente();
@@ -134,11 +135,7 @@ void setup() {
 // ------------------------------------------ LOOP ------------------------------------------ //
 
 void loop() {
-  modo_resgate();
-  // fazer_leitura_nos_sensores_de_linha_principais();
-  // seguir_linha();
-  // verificar_se_existe_obstaculo_a_frente();
-  // procurar_a_rampa();
+
 }
 
 /* ------------------------------------------------------------------------------------------ *\
@@ -206,7 +203,7 @@ void inicializar_sensores_vl53l0x() {
   delay(10);
 
   // Ativando o sensor da frente e hibernando os outros
-  digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_CIMA, HIGH);
+  digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_CIMA, LOW);
   digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_CENTRO, LOW);
   digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_BAIXO, LOW);
   digitalWrite(PINO_XSHUT_VL53L0X_DIREITO, LOW);
@@ -214,23 +211,26 @@ void inicializar_sensores_vl53l0x() {
   delay(10);
 
   // iniciando o sensor frontal cima
-  vl53l0x_frontal_cima.begin(ENDERECO_VL53L0X_FRONTAL_CIMA);
-  delay(10);
+  // vl53l0x_frontal_cima.begin(ENDERECO_VL53L0X_FRONTAL_CIMA);
+  // delay(10);
 
   // digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_CENTRO, HIGH);
   // delay(10);
 
   // iniciando o sensor frontal centro
-  // vl53l0x_frontal_centro.begin(ENDERECO_VL53L0X_FRONTAL_CENTRO);
+  // vl53l0x_frontal_centro.begin(ENDERECO_VL53L0X_FRONTAL_CENTRO);fazer_leitura_nos_sensores_de_linha_principais();
+  seguir_linha();
+  verificar_se_existe_obstaculo_a_frente();
+  procurar_a_rampa();
   // delay(10);
   
 
-  // digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_BAIXO, HIGH);
-  // delay(10);
+  digitalWrite(PINO_XSHUT_VL53L0X_FRONTAL_BAIXO, HIGH);
+  delay(10);
 
-  // // iniciando o sensor frontal baixo
-  // vl53l0x_frontal_baixo.begin(ENDERECO_VL53L0X_FRONTAL_BAIXO);
-  // delay(10);
+  // iniciando o sensor frontal baixo
+  vl53l0x_frontal_baixo.begin(ENDERECO_VL53L0X_FRONTAL_BAIXO);
+  delay(10);
   
   // Ativando o sensor direito
   digitalWrite(PINO_XSHUT_VL53L0X_DIREITO, HIGH);
@@ -492,12 +492,12 @@ void esperar(unsigned long ms) {
 \* ------------------------------------------------------------------------------------------ */
 
 void fazer_leitura_nos_sensores_de_linha_principais() {
-  see = analogRead(pino_sensor_esquerda_extremo) + 130;
+  see = analogRead(pino_sensor_esquerda_extremo);
   sec = analogRead(pino_sensor_esquerda_centro);
   sf  = analogRead(pino_sensor_frente);
   sc  = analogRead(pino_sensor_centro);
   sdc = analogRead(pino_sensor_direita_centro);
-  sde = analogRead(pino_sensor_direita_extremo) + 130;
+  sde = analogRead(pino_sensor_direita_extremo);
 }
 
 // ------------------------------------------------------------------------------------------ //
@@ -617,8 +617,8 @@ void fazer_leitura_no_sensor_vl53l0x_esquerdo() {
 // ------------------------------------------------------------------------------------------ //
 
 void fazer_leitura_nos_sensores_vl53l0x() {
-  fazer_leitura_no_sensor_vl53l0x_frontal_cima();
-  fazer_leitura_no_sensor_vl53l0x_frontal_centro();
+  // fazer_leitura_no_sensor_vl53l0x_frontal_cima();
+  // fazer_leitura_no_sensor_vl53l0x_frontal_centro();
   fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
   fazer_leitura_no_sensor_vl53l0x_direito();
   fazer_leitura_no_sensor_vl53l0x_esquerdo();
@@ -664,7 +664,7 @@ void seguir_linha() {
       }
     }
 
-    else if (see > limite and sde <= limite and sc > _limite and sec > _limite and sdc <= _limite) {
+    else if (see > limite and sde <= limite and sc > _limite and sec > _limite) {
       // CRUZAMENTO COM PRETO NA ESQUERDA
       // Serial.println(F("                CRUZAMENTO COM PRETO NA ESQUERDA\n"))
 
@@ -693,7 +693,7 @@ void seguir_linha() {
       }
     }
 
-    else if (sde > _limite and see <= limite and sc > _limite and sdc > _limite and sec <= limite) {
+    else if (sde > _limite and see <= limite and sc > _limite and sdc > _limite) {
       // CRUZAMENTO COM PRETO NA DIREITA
       // Serial.println(F("                CRUZAMENTO COM PRETO NA DIREITA\n"))
 
@@ -799,6 +799,8 @@ void seguir_linha() {
       }
 
       else {
+        andar_para_frente();
+        delay(100);
         girar_90_graus(PARA_A_ESQUERDA);
         ultima_curva = 'E';
       }
@@ -834,6 +836,8 @@ void seguir_linha() {
       }
 
       else {
+        andar_para_frente();
+        delay(100);
         girar_90_graus(PARA_A_DIREITA);
         ultima_curva = 'D';
       }
@@ -930,15 +934,11 @@ void executar_rotina_correspondente() {
 
     case VIRAR_PARA_A_ESQUERDA:
       soar_um_bipe();
-      andar_para_frente();
-      delay(50);
       girar_90_graus(PARA_A_ESQUERDA);
       break;
 
     case VIRAR_PARA_A_DIREITA:
       soar_um_bipe();
-      andar_para_frente();
-      delay(50);
       girar_90_graus(PARA_A_DIREITA);
       break;
     
@@ -1236,64 +1236,158 @@ void modo_resgate() {
   delay(1000);
 
   do {
-    fazer_leitura_no_sensor_vl53l0x_frontal_cima();
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
     fazer_leitura_no_sensor_vl53l0x_direito();
     if (medida_lida_pelo_vl53l0x_direito <= 3) {
       virar_para_esquerda();
       delay(100);
       andar_para_frente();
     }
-  } while (medida_lida_pelo_vl53l0x_frontal_cima >= 40);
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 36);
 
   parar();
 
-  // while (true) {
-  //   virar_para_esquerda();
-  //   delay(50);
-  //   parar();
-  //   fazer_leitura_no_sensor_vl53l0x_frontal_cima();
-  //   fazer_leitura_no_sensor_vl53l0x_frontal_centro();
-  //   fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
-  //   mostrar_valores_lidos('O');
-  //   delay(100);
-  //   verificar_situacoes_e_mostrar_resultado();
-  // }
-}
+  virar_para_esquerda();
+  delay(1250);
 
-// ------------------------------------------------------------------------------------------ //
+  andar_para_tras();
+  delay(1500);
 
-void verificar_situacoes_e_mostrar_resultado() {
+  andar_para_frente();
+  delay(1000);
 
-  if (medida_lida_pelo_vl53l0x_frontal_centro - medida_lida_pelo_vl53l0x_frontal_baixo >= 8) {
-    vezes_que_encontrei_a_bolinha ++;
-    
-    if (vezes_que_encontrei_a_bolinha > 5) {
-      parar();
-      soar_um_bipe();
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
       virar_para_esquerda();
-      delay(400);
-      Serial.print("          Bolinha encontrada");
-
-      if (medida_lida_pelo_vl53l0x_frontal_cima - medida_lida_pelo_vl53l0x_frontal_centro >= 10) {
-        Serial.print(" e a área de resgate também");
-      }
-      Serial.println();
-
+      delay(50);
       andar_para_frente();
-
-      do {
-        fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
-      } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 5);
-
-      parar();
-      vezes_que_encontrei_a_bolinha = 0;
-      delay(5000);
     }
-  }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 7);
+  
+  parar();
 
-  else if ((medida_lida_pelo_vl53l0x_frontal_cima - medida_lida_pelo_vl53l0x_frontal_centro) > 10) {
-    Serial.println("        Área de resgate encontrada");
-  }
+  andar_para_tras();
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo <= 34);
+
+  virar_para_esquerda();
+  delay(1250);
+
+  parar();
+
+  andar_para_frente();
+  delay(1000);
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
+      virar_para_esquerda();
+      delay(50);
+      andar_para_frente();
+    }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 8);
+
+  virar_para_esquerda();
+  delay(2800);
+
+  andar_para_tras();
+  delay(1500);
+
+  parar();
+
+  andar_para_frente();
+  delay(1000);
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
+      virar_para_esquerda();
+      delay(50);
+      andar_para_frente();
+    }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 8);
+
+
+  virar_para_esquerda();
+  delay(1300);
+
+  parar();
+
+  andar_para_frente();
+  delay(1000);
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
+      virar_para_esquerda();
+      delay(50);
+      andar_para_frente();
+    }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 8);
+
+  virar_para_esquerda();
+  delay(1300);
+
+  parar();
+
+  andar_para_frente();
+  delay(1000);
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
+      virar_para_esquerda();
+      delay(50);
+      andar_para_frente();
+    }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 8);
+
+  virar_para_esquerda();
+  delay(1300);
+
+  parar();
+
+  andar_para_frente();
+  delay(1000);
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
+      virar_para_esquerda();
+      delay(50);
+      andar_para_frente();
+    }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 8);
+
+  virar_para_esquerda();
+  delay(1300);
+
+  parar();
+
+  andar_para_frente();
+  delay(1000);
+
+  do {
+    fazer_leitura_no_sensor_vl53l0x_frontal_baixo();
+    fazer_leitura_no_sensor_vl53l0x_direito();
+    if (medida_lida_pelo_vl53l0x_direito <= 3) {
+      virar_para_esquerda();
+      delay(50);
+      andar_para_frente();
+    }
+  } while (medida_lida_pelo_vl53l0x_frontal_baixo >= 8);
+
+  parar();
+  delay(20000);
 }
 
 // -------------------------------------- FIM DO CÓDIGO ------------------------------------- //
